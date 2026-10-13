@@ -1,12 +1,17 @@
 import math
 import random
+import numpy as np
+import gymnasium as gym
+from gymnasium import spaces
 
 import pygame
 
 from config import (
     CELL_SIZE,
     EPISODE_LIMIT,
+    GOAL_PROGRESS_REWARD_SCALE,
     GOAL_MARGIN,
+    GOAL_REWARD,
     MAX_TURN_RATE,
     MAZE_COLS,
     MAZE_ROWS,
@@ -16,10 +21,14 @@ from config import (
     PLAYER_SIZE,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
+    STEP_PENALTY,
     TURN_ACCELERATION,
     TURN_DRAG,
     WALL_BOUNCE_FACTOR,
     WALL_COLLISION_MARGIN,
+    WALL_COLLISION_PENALTY,
+    WALL_PROXIMITY_RADIUS,
+    WALL_PROXIMITY_REWARD_SCALE,
 )
 
 TOP, RIGHT, BOTTOM, LEFT = range(4)
@@ -30,15 +39,15 @@ WALL_DIRECTIONS = (
     (-1, 0, LEFT, RIGHT),
 )
 
+# I had to put this in a gymnasium environment so that it would work with stable_baselines3 PPO
+class MazeGame(gym.Env):
 
-class MazeGame:
-    """Create and run one maze game."""
-
-    def __init__(self, visualize=True, seed=None):
-        self.visualize = visualize
+    def __init__(self, visualize=False, seed=None):
+        super().__init__()
+        self.visualize = visualize and (pygame is not None)
         self.random = random if seed is None else random.Random(seed)
 
-        if visualize:
+        if self.visualize:
             pygame.init()
             self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
             self.clock = pygame.time.Clock()
@@ -46,23 +55,25 @@ class MazeGame:
         self.maze = self._generate_maze()
         self.start_x = CELL_SIZE // 2
         self.start_y = CELL_SIZE // 2
+        
         self.goal_rect = pygame.Rect(
             (MAZE_COLS - 1) * CELL_SIZE + GOAL_MARGIN,
             (MAZE_ROWS - 1) * CELL_SIZE + GOAL_MARGIN,
             CELL_SIZE - 2 * GOAL_MARGIN,
             CELL_SIZE - 2 * GOAL_MARGIN,
         )
-        self.reset()
+
+        self.action_space = spaces.Discrete(3) 
+
+        self.observation_space = spaces.Box(
+            low=-np.inf, high=np.inf, shape=(15,), dtype=np.float32
+        )
+        
+        self.reset(seed=seed)
 
     def _generate_maze(self):
-        maze = [
-            [[True, True, True, True] for _ in range(MAZE_COLS)]
-            for _ in range(MAZE_ROWS)
-        ]
-        visited = [
-            [False for _ in range(MAZE_COLS)]
-            for _ in range(MAZE_ROWS)
-        ]
+        maze = [[[True, True, True, True] for _ in range(MAZE_COLS)] for _ in range(MAZE_ROWS)]
+        visited = [[False for _ in range(MAZE_COLS)] for _ in range(MAZE_ROWS)]
 
         def carve_passages(column, row):
             visited[row][column] = True
@@ -85,7 +96,11 @@ class MazeGame:
         carve_passages(0, 0)
         return maze
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
+        super().reset(seed=seed)
+        if seed is not None:
+            self.random = random.Random(seed)
+
         self.x = self.start_x
         self.y = self.start_y
         self.angle = 0
@@ -94,6 +109,8 @@ class MazeGame:
         self.velocity_y = 0.0
         self.steps = 0
         self.reached_goal = False
+
+        return self._get_obs(), {}
 
     def _is_wall_at(self, x, y):
         column = int(x // CELL_SIZE)
@@ -145,28 +162,95 @@ class MazeGame:
     def _move_player(self):
         next_x = self.x + self.velocity_x
         next_y = self.y + self.velocity_y
+        collided = False
 
         if self._is_wall_at(next_x, self.y):
             self.velocity_x = -self.velocity_x * WALL_BOUNCE_FACTOR
+            collided = True
         else:
             self.x = next_x
 
         if self._is_wall_at(self.x, next_y):
             self.velocity_y = -self.velocity_y * WALL_BOUNCE_FACTOR
+            collided = True
         else:
             self.y = next_y
 
-    def update(self, steering):
+        return collided
+
+    def _wall_risk(self):
+        directions = ((1, 0), (-1, 0), (0, 1), (0, -1))
+        nearest_wall = WALL_PROXIMITY_RADIUS
+
+        for direction_x, direction_y in directions:
+            for distance in range(2, WALL_PROXIMITY_RADIUS + 1, 2):
+                if self._is_wall_at(
+                    self.x + direction_x * distance,
+                    self.y + direction_y * distance,
+                ):
+                    nearest_wall = min(nearest_wall, distance)
+                    break
+
+        proximity = max(0.0, (WALL_PROXIMITY_RADIUS - nearest_wall) / WALL_PROXIMITY_RADIUS)
+        return proximity * proximity
+
+    def _get_obs(self):
+
+        max_dim = max(MAZE_COLS, MAZE_ROWS) * CELL_SIZE
+        angle_rad = math.radians(self.angle)
+        cos_ang, sin_ang = math.cos(angle_rad), math.sin(angle_rad)
+        
+        sensor_offsets = [-1.57, -0.94, -0.31, 0.31, 0.94, 1.57]
+        ray_results = []
+        sensor_distance = 50
+        
+        for offset in sensor_offsets:
+            check_angle = angle_rad + offset
+            target_x = self.x + math.cos(check_angle) * sensor_distance
+            target_y = self.y + math.sin(check_angle) * sensor_distance
+
+            ray_results.append(1.0 if self._is_wall_at(target_x, target_y) else 0.0)
+
+        base_features = [
+            self.x / max_dim, 
+            self.y / max_dim,
+            (self.goal_rect.centerx - self.x) / max_dim,
+            (self.goal_rect.centery - self.y) / max_dim,
+            cos_ang, 
+            sin_ang, 
+            self.game.velocity_x if hasattr(self, 'game') else self.velocity_x, 
+            self.game.velocity_y if hasattr(self, 'game') else self.velocity_y, 
+            self.angular_velocity
+        ]
+        
+        return np.array(base_features + ray_results, dtype=np.float32)
+
+    def step(self, action):
+        steering = float(action - 1) 
+        
+        old_dist = math.hypot(self.goal_rect.centerx - self.x, self.goal_rect.centery - self.y)
+        old_wall_risk = self._wall_risk()
+        
         self._update_turn(steering)
         self._update_velocity()
-        self._move_player()
+        hit_wall = self._move_player()
         self.steps += 1
-
         self.reached_goal = self.goal_rect.collidepoint(self.x, self.y)
-        timed_out = self.steps > EPISODE_LIMIT
-
-        # TODO(ML): Add observation and reward APIs when an agent is introduced.
-        return self.reached_goal or timed_out
+        
+        new_dist = math.hypot(self.goal_rect.centerx - self.x, self.goal_rect.centery - self.y)
+        new_wall_risk = self._wall_risk()
+        
+        reward = (old_dist - new_dist) * GOAL_PROGRESS_REWARD_SCALE - STEP_PENALTY
+        reward += WALL_PROXIMITY_REWARD_SCALE * (old_wall_risk - new_wall_risk)
+        if hit_wall:
+            reward -= WALL_COLLISION_PENALTY
+        if self.reached_goal:
+            reward += GOAL_REWARD
+            
+        done = self.reached_goal
+        truncated = self.steps >= EPISODE_LIMIT
+        
+        return self._get_obs(), reward, done, truncated, {}
 
     def render(self):
         if not self.visualize:
@@ -217,7 +301,7 @@ class MazeGame:
                     )
 
         pygame.draw.rect(self.screen, (0, 150, 255), self.goal_rect)
-
+                    
     def _draw_player(self):
         facing_angle = math.radians(self.angle)
         front_point = (
