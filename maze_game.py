@@ -83,7 +83,10 @@ class MazeGame(gym.Env):
             for delta_column, delta_row, wall, opposite_wall in directions:
                 next_column = column + delta_column
                 next_row = row + delta_row
-                is_inside_maze = (0 <= next_column < MAZE_COLS and 0 <= next_row < MAZE_ROWS)
+                is_inside_maze = (
+                    0 <= next_column < MAZE_COLS
+                    and 0 <= next_row < MAZE_ROWS
+                )
 
                 if is_inside_maze and not visited[next_row][next_column]:
                     maze[row][column][wall] = False
@@ -119,22 +122,37 @@ class MazeGame(gym.Env):
         x_in_cell = x - column * CELL_SIZE
         y_in_cell = y - row * CELL_SIZE
 
-        if y_in_cell < WALL_COLLISION_MARGIN and walls[TOP]: return True
-        if x_in_cell > CELL_SIZE - WALL_COLLISION_MARGIN and walls[RIGHT]: return True
-        if y_in_cell > CELL_SIZE - WALL_COLLISION_MARGIN and walls[BOTTOM]: return True
-        if x_in_cell < WALL_COLLISION_MARGIN and walls[LEFT]: return True
+        if y_in_cell < WALL_COLLISION_MARGIN and walls[TOP]:
+            return True
+        if x_in_cell > CELL_SIZE - WALL_COLLISION_MARGIN and walls[RIGHT]:
+            return True
+        if y_in_cell > CELL_SIZE - WALL_COLLISION_MARGIN and walls[BOTTOM]:
+            return True
+        if x_in_cell < WALL_COLLISION_MARGIN and walls[LEFT]:
+            return True
         return False
 
     def _update_turn(self, steering):
         steering = max(-1.0, min(1.0, float(steering)))
-        self.angular_velocity = (self.angular_velocity * TURN_DRAG + steering * TURN_ACCELERATION)
-        self.angular_velocity = max(-MAX_TURN_RATE, min(MAX_TURN_RATE, self.angular_velocity))
+        self.angular_velocity = (
+            self.angular_velocity * TURN_DRAG + steering * TURN_ACCELERATION
+        )
+        self.angular_velocity = max(
+            -MAX_TURN_RATE,
+            min(MAX_TURN_RATE, self.angular_velocity),
+        )
         self.angle += self.angular_velocity
 
     def _update_velocity(self):
         movement_angle = math.radians(self.angle)
-        self.velocity_x = (self.velocity_x * MOVEMENT_DRAG + math.cos(movement_angle) * MOVEMENT_ACCELERATION)
-        self.velocity_y = (self.velocity_y * MOVEMENT_DRAG + math.sin(movement_angle) * MOVEMENT_ACCELERATION)
+        self.velocity_x = (
+            self.velocity_x * MOVEMENT_DRAG
+            + math.cos(movement_angle) * MOVEMENT_ACCELERATION
+        )
+        self.velocity_y = (
+            self.velocity_y * MOVEMENT_DRAG
+            + math.sin(movement_angle) * MOVEMENT_ACCELERATION
+        )
         speed = math.hypot(self.velocity_x, self.velocity_y)
         if speed > MOVEMENT_SPEED:
             speed_scale = MOVEMENT_SPEED / speed
