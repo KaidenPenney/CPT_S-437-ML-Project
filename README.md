@@ -28,6 +28,16 @@ pip install -r requirements.txt
 | `watch_agent.py` | Watch a trained agent play |
 | `play_maze.py` | Play the maze yourself with the arrow keys |
 
+## Quick look (no training needed)
+
+`pretrained/` has one trained model per architecture (seed 0, 3M steps):
+
+```
+python watch_agent.py pretrained/cfc_seed0.pt --eval-mazes
+python watch_agent.py pretrained/mlp_seed0.pt --eval-mazes
+python watch_agent.py pretrained/rnn_seed0.pt --eval-mazes
+```
+
 ## Running the experiment
 
 ```
