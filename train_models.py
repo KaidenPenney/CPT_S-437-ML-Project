@@ -245,7 +245,8 @@ def train(arch, seed, args):
             "approx_kl": float(np.mean(approx_kls)),
             "clip_fraction": float(np.mean(clip_fractions)),
         }
-        if log_writer is None and "episodes" in row:
+        # Skip the first updates, where the window holds too few episodes to mean anything.
+        if log_writer is None and tracker.count >= 20:
             log_writer = csv.DictWriter(log_file, fieldnames=list(row.keys()))
             log_writer.writeheader()
         if log_writer is not None:

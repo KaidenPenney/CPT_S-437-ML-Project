@@ -43,8 +43,8 @@ python watch_agent.py runs/cfc_seed0/model.pt --eval-mazes
 ```
 
 Each run uses one CPU thread, so on a multi-core machine you can start several
-in separate terminals, for example one per `--seed`. On a laptop CPU a 3M-step
-run takes about 5 to 15 minutes depending on the architecture (CfC is slowest).
+in separate terminals, for example one per `--seed`. On our test machine a 3M-step
+run took about 4 minutes (MLP), 6 minutes (RNN) and 9 minutes (CfC).
 
 ## Design notes
 
