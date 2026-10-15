@@ -4,7 +4,8 @@ from maze_game import MazeGame
 
 def play_human():
 
-    game = MazeGame(visualize=True)
+    # action_repeat=1 so the keyboard is read every frame; step() renders each tick.
+    game = MazeGame(visualize=True, action_repeat=1)
     controls = KeyboardControls()
 
     game.reset()
@@ -19,8 +20,6 @@ def play_human():
 
         _, _, terminated, truncated, _ = game.step(action_idx)
         game_over = terminated or truncated
-        
-        game.render()
 
 
 if __name__ == "__main__":

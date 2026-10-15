@@ -1,0 +1,7 @@
+torch
+ncps
+gymnasium
+pygame
+numpy
+matplotlib
+pandas
