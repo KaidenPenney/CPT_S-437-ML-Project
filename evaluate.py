@@ -106,14 +106,19 @@ def main():
     warnings.filterwarnings("ignore", message="Degrees of freedom")
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--runs-dir", default="runs")
+    parser.add_argument("--checkpoints", nargs="+", help="explicit checkpoint paths, including pretrained/*.pt")
+    parser.add_argument("--threads", type=int, default=1, help="torch CPU threads")
     parser.add_argument("--policy", choices=["stochastic", "deterministic", "both"], default="both")
     parser.add_argument("--num-mazes", type=int, default=None, help="use only the first N eval mazes")
     parser.add_argument("--out", default=None, help="per-episode CSV (default: <runs-dir>/eval_episodes.csv)")
     args = parser.parse_args()
+    if args.threads < 1 or (args.num_mazes is not None and args.num_mazes < 1):
+        parser.error("threads and num-mazes must be positive")
+    torch.set_num_threads(args.threads)
 
     maze_seeds = eval_maze_seeds()[:args.num_mazes]
     policies = ["stochastic", "deterministic"] if args.policy == "both" else [args.policy]
-    checkpoints = sorted(glob.glob(os.path.join(args.runs_dir, "*", "model.pt")))
+    checkpoints = args.checkpoints or sorted(glob.glob(os.path.join(args.runs_dir, "*", "model.pt")))
     if not checkpoints:
         raise SystemExit(f"No checkpoints found under {args.runs_dir}/*/model.pt")
 
@@ -121,7 +126,8 @@ def main():
     # per_run[(policy, arch)] -> list of per-run mean metric dicts (one per training seed)
     per_run = defaultdict(list)
     for path in checkpoints:
-        run_name = os.path.basename(os.path.dirname(path))
+        run_name = (os.path.basename(os.path.dirname(path)) if os.path.basename(path) == "model.pt"
+                    else os.path.splitext(os.path.basename(path))[0])
         arch, model = load_model(path)
         for policy in policies:
             episodes = evaluate_model(model, maze_seeds, deterministic=(policy == "deterministic"))
@@ -132,6 +138,7 @@ def main():
             print(f"{run_name:>16} {policy:>13}: success {run_means['success']:.3f}  spl {run_means['spl']:.3f}")
 
     out_path = args.out or os.path.join(args.runs_dir, "eval_episodes.csv")
+    os.makedirs(os.path.dirname(os.path.abspath(out_path)), exist_ok=True)
     with open(out_path, "w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=list(rows[0].keys()))
         writer.writeheader()

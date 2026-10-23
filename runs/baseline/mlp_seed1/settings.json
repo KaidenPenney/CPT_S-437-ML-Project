@@ -1,0 +1,66 @@
+{
+  "arch": "mlp",
+  "seed": 1,
+  "args": {
+    "arch": [
+      "mlp"
+    ],
+    "seed": [
+      1
+    ],
+    "timesteps": 3000000,
+    "param_budget": 6000,
+    "num_envs": 16,
+    "rollout_steps": 256,
+    "seq_len": 64,
+    "num_minibatches": 4,
+    "epochs": 4,
+    "lr": 0.0003,
+    "gamma": 0.995,
+    "gae_lambda": 0.95,
+    "clip": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "threads": 1,
+    "out_dir": "/Users/coleg/Coding/CPT_S-437-ML-Project/runs/baseline"
+  },
+  "config": {
+    "ACTION_REPEAT": 4,
+    "CELL_SIZE": 200,
+    "EPISODE_LIMIT": 6000,
+    "EVAL_SEED_OFFSET": 1000000,
+    "GOAL_MARGIN": 5,
+    "GOAL_PROGRESS_REWARD": 0.5,
+    "GOAL_REWARD": 10.0,
+    "MAX_TURN_RATE": 5.0,
+    "MAZE_COLS": 6,
+    "MAZE_ROWS": 4,
+    "MOVEMENT_ACCELERATION": 0.15,
+    "MOVEMENT_DRAG": 0.97,
+    "MOVEMENT_SPEED": 2.0,
+    "NUM_EVAL_MAZES": 200,
+    "OBS_INCLUDE_POSITION": false,
+    "PLAYER_SIZE": 12,
+    "SCREEN_HEIGHT": 800,
+    "SCREEN_WIDTH": 1200,
+    "SENSOR_ANGLES": [
+      -90,
+      -60,
+      -30,
+      0,
+      30,
+      60,
+      90
+    ],
+    "SENSOR_RANGE": 200,
+    "STEP_PENALTY": 0.01,
+    "TURN_ACCELERATION": 0.9,
+    "TURN_DRAG": 0.9,
+    "WALL_BOUNCE_FACTOR": 0.4,
+    "WALL_COLLISION_MARGIN": 2,
+    "WALL_COLLISION_PENALTY": 0.1,
+    "WALL_PROXIMITY_RADIUS": 40,
+    "WALL_PROXIMITY_REWARD_SCALE": 0.5
+  }
+}

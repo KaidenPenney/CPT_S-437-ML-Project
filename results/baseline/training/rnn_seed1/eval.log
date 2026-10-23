@@ -1,0 +1,10 @@
+       rnn_seed1    stochastic: success 0.910  spl 0.857
+       rnn_seed1 deterministic: success 0.980  spl 0.926
+
+200 held-out mazes; mean +/- std over training seeds
+       policy  arch seeds           success               spl             ticks          distance        collisions       switch_rate         turn_jerk
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+deterministic   rnn     1     0.980 +/- 0.000     0.926 +/- 0.000  1578.291 +/- 0.000  3136.828 +/- 0.000     0.595 +/- 0.000     0.389 +/- 0.000     1.697 +/- 0.000
+   stochastic   rnn     1     0.910 +/- 0.000     0.857 +/- 0.000  1582.626 +/- 0.000  3145.030 +/- 0.000     6.950 +/- 0.000     0.575 +/- 0.000     2.042 +/- 0.000
+
+Per-episode results written to /Users/coleg/Coding/CPT_S-437-ML-Project/runs/baseline/rnn_seed1/eval_episodes.csv

@@ -1,0 +1,44 @@
+[
+  {
+    "arch": "mlp",
+    "maze_seed": 1000000,
+    "success": true,
+    "ticks": 1765,
+    "collision_ticks": 0
+  },
+  {
+    "arch": "mlp",
+    "maze_seed": 1000004,
+    "success": false,
+    "ticks": 6000,
+    "collision_ticks": 0
+  },
+  {
+    "arch": "rnn",
+    "maze_seed": 1000000,
+    "success": true,
+    "ticks": 1342,
+    "collision_ticks": 0
+  },
+  {
+    "arch": "rnn",
+    "maze_seed": 1000004,
+    "success": false,
+    "ticks": 6000,
+    "collision_ticks": 0
+  },
+  {
+    "arch": "cfc",
+    "maze_seed": 1000000,
+    "success": true,
+    "ticks": 1209,
+    "collision_ticks": 0
+  },
+  {
+    "arch": "cfc",
+    "maze_seed": 1000004,
+    "success": false,
+    "ticks": 6000,
+    "collision_ticks": 0
+  }
+]

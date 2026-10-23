@@ -25,20 +25,32 @@ pip install -r requirements.txt
 | `train_models.py` | Recurrent PPO trainer |
 | `evaluate.py` | Metrics on the held-out evaluation mazes |
 | `plot_results.py` | Training curves, mean ± std over seeds |
+| `run_experiment.py` | Train and evaluate all nine baseline runs |
+| `generate_results.py` | Results tables, comparison plots, and example trajectories |
 | `watch_agent.py` | Watch a trained agent play |
 | `play_maze.py` | Play the maze yourself with the arrow keys |
 
 ## Quick look (no training needed)
 
-`pretrained/` has one trained model per architecture (seed 0, 3M steps):
+Watch the baseline CfC model, or the bundled checkpoint if training has not run:
 
 ```
-python watch_agent.py pretrained/cfc_seed0.pt --eval-mazes
-python watch_agent.py pretrained/mlp_seed0.pt --eval-mazes
-python watch_agent.py pretrained/rnn_seed0.pt --eval-mazes
+python watch_agent.py
 ```
+
+Use `--arch mlp` or `--arch rnn` to switch models, and `--seed 1` or `--seed 2` to switch training seeds.
 
 ## Running the experiment
+
+Run all three architectures on seeds 0, 1, and 2, evaluate both policies on 200 held-out mazes, and export results:
+
+```
+python run_experiment.py
+```
+
+Results: [report and plots](results/baseline/RESULTS.md). Raw metrics and training logs are in `results/baseline/`; checkpoints are in `runs/baseline/`. Use `--resume` to reuse completed training runs.
+
+Individual commands:
 
 ```
 # Train all three models on 3 seeds (each run saves to runs/<arch>_seed<k>/)

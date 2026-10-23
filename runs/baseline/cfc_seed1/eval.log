@@ -1,0 +1,10 @@
+       cfc_seed1    stochastic: success 0.875  spl 0.840
+       cfc_seed1 deterministic: success 0.865  spl 0.859
+
+200 held-out mazes; mean +/- std over training seeds
+       policy  arch seeds           success               spl             ticks          distance        collisions       switch_rate         turn_jerk
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+deterministic   cfc     1     0.865 +/- 0.000     0.859 +/- 0.000  1156.676 +/- 0.000  2298.537 +/- 0.000     0.060 +/- 0.000     0.466 +/- 0.000     2.014 +/- 0.000
+   stochastic   cfc     1     0.875 +/- 0.000     0.840 +/- 0.000  1476.074 +/- 0.000  2936.453 +/- 0.000     0.825 +/- 0.000     0.618 +/- 0.000     2.193 +/- 0.000
+
+Per-episode results written to /Users/coleg/Coding/CPT_S-437-ML-Project/runs/baseline/cfc_seed1/eval_episodes.csv

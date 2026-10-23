@@ -30,10 +30,12 @@ def main():
 
     fig, ax = plt.subplots(figsize=(7, 4.5))
     for arch, frames in sorted(curves.items()):
-        length = min(len(f) for f in frames)
-        steps = frames[0]["timesteps"].to_numpy()[:length]
-        values = np.stack([f[args.metric].to_numpy()[:length] for f in frames])
-        mean, std = values.mean(0), values.std(0)
+        # align seeds by training step; logging can start at different updates.
+        aligned = pd.concat([f.set_index("timesteps")[args.metric] for f in frames], axis=1).dropna()
+        steps = aligned.index.to_numpy()
+        values = aligned.to_numpy().T
+        mean = values.mean(0)
+        std = values.std(0, ddof=1) if len(frames) > 1 else np.zeros_like(mean)
         ax.plot(steps, mean, label=f"{arch} (n={len(frames)})")
         ax.fill_between(steps, mean - std, mean + std, alpha=0.2)
     ax.set_xlabel("agent decisions")

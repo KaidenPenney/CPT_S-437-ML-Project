@@ -1,0 +1,46 @@
+{
+  "started_utc": "2026-10-20T22:18:22.657250+00:00",
+  "git_commit": "de6a4e391b772a281a03258ba796290e11ca061a",
+  "source_sha256": {
+    "config.py": "bdfd405b0423a8fd104c3e7bafdd55a2fd1f0579ce495d2660a4dce5918bda3b",
+    "maze_game.py": "fec39308ef02682d082cd4023b6a8f5e0f528133c1ab20069a6f8af5e035876d",
+    "models.py": "fc16061593f464c6123e9d8ecefc48d12666fc15136aeb66accee259b31e11f4",
+    "train_models.py": "dfa669ab67c792ed384a04c4cfd1bc407c6f21af6456f228cef67ec38e1f7af0",
+    "evaluate.py": "185002266fd9fb7aabc0dbc5391e0a84a6a29fbafdeaa8c431d8235801328545"
+  },
+  "python": "3.10.11 (v3.10.11:7d4cc5aa85, Apr  4 2023, 19:05:19) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "cpu_count": 14,
+  "packages": {
+    "torch": "2.14.0",
+    "ncps": "1.0.1",
+    "gymnasium": "1.3.0",
+    "pygame": "2.6.1",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "matplotlib": "3.10.9"
+  },
+  "architectures": [
+    "mlp",
+    "rnn",
+    "cfc"
+  ],
+  "training_seeds": [
+    0,
+    1,
+    2
+  ],
+  "requested_timesteps": 3000000,
+  "actual_timesteps": 2998272,
+  "evaluation_mazes": 200,
+  "evaluation_action_seed": 0,
+  "policies": [
+    "stochastic",
+    "deterministic"
+  ],
+  "threads_per_run": 1,
+  "parallel_jobs": 3,
+  "runs_dir": "runs/baseline",
+  "completed_utc": "2026-10-20T22:29:20.479874+00:00",
+  "orchestration_elapsed_s": 657.79
+}

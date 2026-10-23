@@ -1,0 +1,10 @@
+       mlp_seed1    stochastic: success 0.815  spl 0.783
+       mlp_seed1 deterministic: success 0.760  spl 0.760
+
+200 held-out mazes; mean +/- std over training seeds
+       policy  arch seeds           success               spl             ticks          distance        collisions       switch_rate         turn_jerk
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+deterministic   mlp     1     0.760 +/- 0.000     0.760 +/- 0.000   972.059 +/- 0.000  1928.909 +/- 0.000     0.000 +/- 0.000     0.559 +/- 0.000     1.974 +/- 0.000
+   stochastic   mlp     1     0.815 +/- 0.000     0.783 +/- 0.000  1327.104 +/- 0.000  2638.612 +/- 0.000     0.330 +/- 0.000     0.653 +/- 0.000     2.420 +/- 0.000
+
+Per-episode results written to /Users/coleg/Coding/CPT_S-437-ML-Project/runs/baseline/mlp_seed1/eval_episodes.csv
